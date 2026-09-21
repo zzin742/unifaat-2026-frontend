@@ -12,10 +12,12 @@ import GetFileController from '../app/Http/Controllers/GetFileController.js';
 import Return404Controller from '../app/Http/Controllers/Return404Controller.js';
 import userRouter from './apis/userRouter.js';
 import taskRouter from './apis/taskRouter.js';
+import taskContextRouter from './apis/taskContextRouter.js';
 import fileUpload from 'express-fileupload';
 import swaggerUi from 'swagger-ui-express';
 import LoginController from '../app/Http/Controllers/LoginController.js';
 import AuthMiddleware from '../app/Http/Middlewares/AuthMiddleware.js';
+import AuthTokenMiddleware from '../app/Http/Middlewares/AuthTokenMiddleware.js';
 import CorsMiddleware from '../app/Http/Middlewares/CorsMiddleware.js';
 import ParseCookiesMiddleware from '../app/Http/Middlewares/ParseCookiesMiddleware.js';
 import SwaggerDoc from '../app/Http/SwaggerDoc.js';
@@ -91,6 +93,9 @@ router.use("/users", userRouter);
 
 /** Router para tarefas aninhadas em usuários */
 router.use("/users/:idUser/tasks", taskRouter);
+
+/** Router para tarefas do usuário autenticado (API contextual — idUser vem do JWT, não da URL) */
+router.use("/me/tasks", AuthTokenMiddleware, taskContextRouter);
 
 /**
  * Fallback 404 para requisições não encontradas

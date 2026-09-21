@@ -11,7 +11,7 @@ services:
     volumes:
       - ./src/backend:/app/backend
       - ./src/_web.js:/app/_web.js
-      - ./src/frontend/public:/app/frontend/public
+      - public-volume:/app/frontend/public
       - nodemodules-volume:/app/node_modules
     depends_on:
       - postgres-container
@@ -62,6 +62,21 @@ services:
     networks:
       - app-network
 
+  #NODE VITE COMPILER
+  nodevitecompiler-container:
+    build:
+      context: .
+      dockerfile: docker/node24-vite-compiler/Dockerfile
+    volumes:
+      - public-volume:/app/public
+      - ./src/frontend/resources:/app/resources
+      - nodemodules-volume:/app/node_modules
+    restart: unless-stopped
+    environment:
+      - IS_CONTAINER=TRUE
+    networks:
+      - app-network
+
   #NGINX
   nginx-container:
     build:
@@ -72,7 +87,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src/frontend/public:/var/www
+      - public-volume:/var/www
       - ./aulas:/var/www/aulas
       - ./src/logs/nginx:/var/log/nginx
     depends_on:
@@ -107,4 +122,5 @@ networks:
 
 volumes:
   nodemodules-volume:
+  public-volume:
   postgres-volume:

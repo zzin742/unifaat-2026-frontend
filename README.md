@@ -6,9 +6,10 @@ Repositório centralizado para todas as aulas do bimestre de Frontend. Aqui voc�
 
 ## 📚 Aulas do Bimestre
 
-| Aula | Descrição | Material |
-|------|-----------|----------|
-| **Aula 04** | Navegadores Web e API - Implementar operações de atualização e exclusão de tarefas em um gerenciador com UPDATE e DELETE | [📖 Acesso](./aulas/04/README.md) |
+| Aula | Material |
+|------|----------|
+| **Aula 04** - Navegadores Web e API | [Acesso](./aulas/04/README.md) |
+| **Aula 05** - TypeScript, Generics e API Contextual | [Acesso](./aulas/05/README.md) |
 
 ---
 
@@ -170,19 +171,23 @@ O `src/` é o projeto base do **primeiro bimestre** que evolui ao longo das aula
 | `nodeweb-container`     | `node:25`             | Rodar a API/aplicação Node (servida via `nodemon _web.js`).   | 3000          |
 | `nodecommand-container` | `node:25`             | Rodar comandos CLI avulsos (`migrate`, `seed`) via `_command.js`. | —          |
 | `nodevitehmr-container` | `node:25`             | Servir o frontend via Vite HMR                                | 5172          |
+| `nodevitecompiler-container` | `node:24`        | Pré-compilar o frontend (`vite build --watch`): TypeScript, Bootstrap, Axios e FontAwesome viram JS/CSS puro em `public/`. | —          |
 | `postgres-container`    | `postgres:18`         | Banco de dados PostgreSQL da aplicação.                       | 5432          |
 
 ### Volumes Persistentes
 
 | Volume                              | Utilizado por             | Finalidade                                                              |
 |--------------------------------------|---------------------------|--------------------------------------------------------------------------|
-| `./src/frontend/public:/var/www`    | `nginx-container`         | Disponibilizar os arquivos estáticos do frontend.                        |
+| `public-volume:/var/www`            | `nginx-container`         | Disponibilizar os arquivos estáticos compilados do frontend (`public/`).  |
 | `./aulas:/var/www/aulas`            | `nginx-container`         | Disponibilizar materiais das aulas (slides, PDFs, etc).                 |
 | `./src/logs/nginx:/var/log/nginx`   | `nginx-container`         | Persistir os logs do NGINX fora do container.                            |
 | `./src/backend:/app/backend`        | `nodeweb-container`       | Disponibilizar o código do backend dentro do container.                  |
 | `./src/_web.js:/app/_web.js`        | `nodeweb-container`       | Arquivo de entrada da aplicação web.                                     |
+| `public-volume:/app/frontend/public`| `nodeweb-container`       | Ler os arquivos compilados do frontend (mesmo volume do NGINX).          |
 | `./src/_command.js:/app/_command.js`| `nodecommand-container`   | Arquivo de entrada dos comandos CLI.                                     |
 | `./src/frontend:/app/frontend`      | `nodevitehmr-container`   | Disponibilizar o código frontend para Vite.                              |
+| `./src/frontend/resources:/app/resources` | `nodevitecompiler-container` | Código-fonte que o Vite observa e compila (`vite build --watch`). |
+| `public-volume:/app/public`         | `nodevitecompiler-container` | Escrever o resultado da compilação (mesmo volume do NGINX e do Node web). |
 | `nodemodules-volume:/app/node_modules` | node containers       | Isolar o `node_modules` instalado em build-time.                        |
 | `postgres-volume:/var/lib/postgresql` | `postgres-container`    | Persistir os dados do banco entre reinicializações.                      |
 
@@ -204,7 +209,7 @@ Todos os containers estão conectados à rede Docker personalizada `app_network`
 
 ```sh
 # Instalar dependências
-npm i
+npm run i
 
 # Subir a aplicação
 docker compose up --build
