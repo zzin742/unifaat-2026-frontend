@@ -25,6 +25,29 @@ export interface Task {
   id_user: number;
 }
 
+/**
+ * Filtros aceitos pelo POST /users/search.
+ *
+ * Os campos de texto sao buscados como "contem" (LIKE '%valor%') pelo
+ * Elasticsearch; is_active e comparado por valor exato. Todos sao opcionais:
+ * o modal monta o objeto com UMA chave, a do campo escolhido no select.
+ */
+export interface UserSearchFilters {
+  name?: string;
+  email?: string;
+  job_title?: string;
+  bio?: string;
+  city?: string;
+  state?: string;
+  is_active?: boolean;
+}
+
+/** Campos de texto que o select do modal oferece. */
+export type UserSearchTextField = Extract<
+  keyof UserSearchFilters,
+  "name" | "email" | "job_title" | "bio" | "city" | "state"
+>;
+
 // ── Generics para respostas de API ──────────────────────────
 
 /**
